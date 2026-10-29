@@ -102,6 +102,8 @@
             border: 1px solid #333;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 			max-width: 310px;
+			display: flex;
+   		 	flex-direction: column;
         }
         .box h3 { margin-top: 0; color: #fff; display: flex; justify-content: space-between; }
         .box .slot-count { font-size: 0.85rem; color: #888; }
@@ -152,12 +154,21 @@
             color: #555;
             font-size: 0.85rem;
 			max-width: 300px;
+			box-sizing: border-box;
+    		overflow: hidden;
 
         }
         .slot.filled {
             border: none;
             background: transparent;
+			padding: 0;
         }
+		.slot.filled .spec {
+   		margin: 0;
+		height: 100%;
+    	width: 100%;
+    	padding: 0 8px;
+		}
 		
 		.box .spec {
 		width: 100%;
