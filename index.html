@@ -396,30 +396,6 @@ let draggedSpec = '';
 let isDragging = false;
 let draggedFromSlot = null;  // ← NEU: merkt sich, von welchem Slot gezogen wird
 
-// mobile touch bedienung
-let longPressTimer = null;
-
-document.addEventListener('touchstart', function(e) {
-    longPressTimer = setTimeout(() => {
-        // Simuliert contextmenu
-        e.preventDefault();
-        const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-
-        // Logik wie bei deinem contextmenu-Handler:
-        const slot = target.closest('.spec.filled');
-        if (slot) {
-            slot.className = 'slot';
-            slot.innerHTML = '— leer —';
-            slot.removeAttribute('data-spec');
-            slot.removeAttribute('draggable');
-            checkBuffs();
-        }
-    }, 500);  // 500ms = Long-Press-Dauer
-}, { passive: false });
-
-// Timer abbrechen bei Touch-End oder Bewegung
-document.addEventListener('touchend', () => clearTimeout(longPressTimer));
-document.addEventListener('touchmove', () => clearTimeout(longPressTimer));   
 
 // Hilfsfunktion: Slot füllen
 function fillSlot(slot, cls, specName, text, iconSrc) {
@@ -491,6 +467,24 @@ document.querySelectorAll('.sidebar .spec').forEach(spec => {
         }
         checkBuffs();
     });
+			spec.addEventListener('dblclick', () => {
+			if (isDragging) return;
+			const text = spec.innerText;
+			const cls = spec.getAttribute('data-class');
+			const specName = spec.getAttribute('data-spec');
+			const img = spec.querySelector('img');
+			const iconSrc = img ? img.src : '';
+
+			const boxes = document.querySelectorAll('.box');
+			for (const box of boxes) {
+				const emptySlot = box.querySelector('.slot:not(.filled)');
+				if (emptySlot) {
+					fillSlot(emptySlot, cls, specName, text, iconSrc);
+					break;
+				}
+			}
+			checkBuffs();
+			});
 });
 
 // --- Drop in eine Gruppe ---
@@ -550,6 +544,15 @@ document.querySelectorAll('.box').forEach(box => {
         slot.removeAttribute('draggable');
         checkBuffs();
     });
+		box.addEventListener('dblclick', (e) => {
+	    	const slot = e.target.closest('.spec.filled');
+		    if (!slot) return;
+		    slot.className = 'slot';
+		    slot.innerHTML = '— leer —';
+		    slot.removeAttribute('data-spec');
+		    slot.removeAttribute('draggable');
+		    checkBuffs();
+		});
 });
 
 // --- Buffs ---
