@@ -405,10 +405,10 @@ document.addEventListener('contextmenu', function(e) {
 document.getElementById('resetBtn').addEventListener('click', () => {
     document.querySelectorAll('.box [data-index]').forEach(el => {
        	el.className = 'slot';  
-        slot.innerHTML = '— leer —';
-        slot.removeAttribute('data-spec');
-        slot.removeAttribute('data-class');
-        slot.removeAttribute('draggable');
+        el.innerHTML = '— leer —';
+        el.removeAttribute('data-spec');
+        el.removeAttribute('data-class');
+        el.removeAttribute('draggable');
     });
     checkBuffs();
 });   
