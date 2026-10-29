@@ -403,7 +403,7 @@ document.addEventListener('contextmenu', function(e) {
 });   
 
 document.getElementById('resetBtn').addEventListener('click', () => {
-    document.querySelectorAll('.box .slot').forEach(slot => {
+    document.querySelectorAll('.box [data-index]').forEach(el => {
         slot.className = 'slot';
         slot.innerHTML = '— leer —';
         slot.removeAttribute('data-spec');
