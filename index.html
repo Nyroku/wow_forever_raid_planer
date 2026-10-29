@@ -404,7 +404,7 @@ document.addEventListener('contextmenu', function(e) {
 
 document.getElementById('resetBtn').addEventListener('click', () => {
     document.querySelectorAll('.box [data-index]').forEach(el => {
-        slot.className = 'slot';
+       	el.className = 'slot';  
         slot.innerHTML = '— leer —';
         slot.removeAttribute('data-spec');
         slot.removeAttribute('data-class');
