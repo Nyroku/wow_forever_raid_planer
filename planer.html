@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">     
+    <title>WoW Forever Raid Planer</title>
+    <style>
+        body { 
+            background: #121212; 
+            color: #e0e0e0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            margin: 0;
+			touch-action: manipulation;
+        }
+        h1 { color: #f5f5f5; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .hint { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; }
+        
+        .main-layout { display: flex; gap: 30px; align-items: flex-start; }
+        
+        /* Specs Seitenleiste */
+        .sidebar { 
+            background: #1a1a1a; 
+            padding: 15px; 
+            border-radius: 8px; 
+            width: 410px; 
+            max-height: 85vh; 
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .sidebar h3 { margin-top: 0; color: #fff; border-bottom: 1px solid #444; padding-bottom: 5px; }
+		
+		/* kategorien */
+		.category-header {
+			margin: 12px 0 4px 0;
+			padding: 4px 8px;
+			font-size: 0.8rem;
+			font-weight: bold;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			color: #888;
+			border-bottom: 1px solid #333;
+			user-select: none;
+		}
+		.category-header:first-of-type {
+			margin-top: 8px;
+		}   
+			.category-header:empty {
+			height: 18px;
+			border-bottom: none;
+			}   
+        
+		.sidebar-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+		}
+
+		.category {
+			display: flex;
+			flex-direction: column;
+		}   
+		
+		/* Kategorie explizit in rechte Spalte zwingen */
+		.category.left {
+			grid-column: 1;
+		}   
+		.category.right {
+			grid-column: 2;
+		}   
+
+
+        /* Raid Gruppen Layout */
+        .raid-container { display: flex; flex-direction: column; gap: 20px; }
+        .grid-groups { 
+		display: grid; 
+		grid-template-columns: repeat(2, 300px); 
+		row-gap: 10px; 
+		column-gap: 10px;
+		}
+        
+        .box { 
+            background: #1c1c1c; 
+            padding: 15px; 
+            border-radius: 8px; 
+            min-height: 220px; 
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+			max-width: 310px;
+        }
+        .box h3 { margin-top: 0; color: #fff; display: flex; justify-content: space-between; }
+        .box .slot-count { font-size: 0.85rem; color: #888; }
+        
+        /* Spec Elemente Styling */
+        .spec { 
+			width: 95%;
+            padding: 0px 8px 0px 0px; 
+            margin: 2px 0; 
+            border-radius: 4px; 
+            cursor: grab; 
+            font-weight: bold;
+            font-size: 1.0rem;
+			color: #000 !important;
+			font-family: 'Segoe UI';
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+			gap: 4px; 
+            user-select: none;
+        }
+        .spec:active { cursor: grabbing; }
+        
+
+        /* Offizielle WoW Klassenfarben */
+        .warrior     { background-color: #C69B6D; color: #111; border-left: 5px solid #7c5a35; }
+        .mage        { background-color: #3FC7EB; color: #111; border-left: 5px solid #1a89a8; }
+        .priest      { background-color: #FFFFFF; color: #111; border-left: 5px solid #ccc; }
+        .warlock     { background-color: #8660A1; color: #fff; border-left: 5px solid #4a3261; }
+        .rogue       { background-color: #FFF468; color: #111; border-left: 5px solid #bdae16; }
+        .hunter      { background-color: #AAD372; color: #111; border-left: 5px solid #6b9435; }
+        .druid       { background-color: #FF7C0A; color: #fff; border-left: 5px solid #b35100; }
+        .paladin     { background-color: #F48CBA; color: #111; border-left: 5px solid #b54979; }
+        .shaman     { background-color: #0070DE; color: #fff; border-left: 5px solid #00458a; }
+		.tank		{ background-color: #888888; color: #fff; border-left: 5px solid #888888; }
+		.heal      { background-color: #888888; color: #fff; border-left: 5px solid #888888; }
+		.dd      { background-color: #888888; color: #fff; border-left: 5px solid #888888; }
+		
+		 .slot {
+            height: 38px;
+            margin: 6px 0;
+            border-radius: 4px;
+            background: #2a2a2a;
+            border: 1px dashed #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 0.85rem;
+			max-width: 300px;
+
+        }
+        .slot.filled {
+            border: none;
+            background: transparent;
+        }
+		
+		.box .spec {
+		width: 100%;
+		padding: 0 12px 0 1px;
+		height: 38px;
+		box-sizing: border-box;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		}
+		.box .spec img {
+		width: 38px;
+		height: 38px;
+		}
+
+		.buff-panel {
+			background: #1a1a1a;
+			padding: 15px;
+			border-radius: 8px;
+			width: 200px;
+			border: 1px solid #333;
+		}
+		.buff-panel h3 {
+			margin-top: 0;
+			color: #fff;
+			border-bottom: 1px solid #444;
+			padding-bottom: 5px;
+		}
+		.buff {
+			padding: 6px 10px;
+			margin: 5px 0;
+			border-radius: 4px;
+			font-size: 0.85rem;
+			user-select: none;
+			background: #2a2a2a;
+			color: #666;
+			border-left: 4px solid #444;
+			position: relative;
+			cursor: help;
+		}
+		.buff.active {
+			background: #1a3a1a;
+			color: #fff;
+			border-left: 4px solid #4caf50;
+		}   
+
+
+		.buff .tooltip {
+			display: none;
+			position: absolute;
+			bottom: 100%;
+			left: 0;
+			background: #2a2a2a;
+			color: #ccc;
+			border: 1px solid #555;
+			border-radius: 4px;
+			padding: 6px 10px;
+			font-size: 0.75rem;
+			white-space: nowrap;
+			z-index: 10;
+			pointer-events: none;
+		}
+
+		.buff:hover .tooltip {
+			display: block;
+		}   		
+		.buff-separator {
+		height: 1px;
+		background: #333;
+		margin: 10px 0;
+		}   
+
+    </style>
+</head>
+<body>
+
+    <h1>WoW Forever Raid Planer</h1>
+    <p class="hint">💡 <b>Bedienung:</b> <b>Ziehen oder Rechtsklick</b> um Specs in eine Raid Gruppe zu verschieben. Ein Rechtsklick auf einen Spec innerhalb einer Gruppe entfernt ihn wieder.</p>
+
+    <div class="main-layout">
+        
+        <!-- Specs Auswahl-Seitenleiste -->
+        <div class="sidebar">
+            <h3>Forever Specs</h3>
+				<div class="sidebar-grid">
+            
+			<div class="category left">
+			<div class="category-header">Tank</div>			
+			<div class="spec tank" draggable="true" data-class="tank" data-spec="tank"> <img src="icons/icon_tank.png" width="30" height="30"> Tank </div>
+			<div class="spec warrior" draggable="true" data-class="warrior" data-spec="prot_warrior"> <img src="icons/prot_warrior.png" width="30" height="30"> Protection </div>
+			<div class="spec druid" draggable="true" data-class="druid" data-spec="guardian"> <img src="icons/guardian.png" width="30" height="30"> Guardian </div>
+			<div class="spec paladin" draggable="true" data-class="paladin" data-spec="prot_pala"> <img src="icons/prot_pala.png" width="30" height="30"> Protection </div>
+			</div>
+			
+			<div class="category right">
+			<div class="category-header">Heal</div>			
+			<div class="spec heal" draggable="true" data-class="heal" data-spec="heal"> <img src="icons/icon_heal.png" width="30" height="30"> Heal </div>
+			<div class="spec priest" draggable="true" data-class="priest" data-spec="disc_priest"> <img src="icons/discipline.png" width="30" height="30"> Discipline </div>
+			<div class="spec priest" draggable="true" data-class="priest" data-spec="holy_priest"> <img src="icons/holy_priest.png" width="30" height="30"> Holy </div>
+			<div class="spec druid" draggable="true" data-class="druid" data-spec="resto_druid"> <img src="icons/resto_druid.png" width="30" height="30"> Restoration </div>
+			<div class="spec paladin" draggable="true" data-class="paladin" data-spec="holy_pala"> <img src="icons/holy_pala.png" width="30" height="30"> Holy </div>
+			<div class="spec shaman" draggable="true" data-class="shaman" data-spec="resto_shaman"> <img src="icons/restoration.png" width="30" height="30"> Restoration </div>
+			</div>
+			
+			<div class="category left">
+			<div class="category-header">DD</div>			
+			<div class="spec warrior" draggable="true" data-class="warrior" data-spec="fury"> <img src="icons/fury.png" width="30" height="30"> Fury </div>
+			<div class="spec warrior" draggable="true" data-class="warrior" data-spec="arms"> <img src="icons/arms.png" width="30" height="30"> Arms </div>
+			<div class="spec druid" draggable="true" data-class="druid" data-spec="feral"> <img src="icons/feral.png" width="30" height="30"> Feral </div>
+			<div class="spec rogue" draggable="true" data-class="rogue" data-spec="assa"> <img src="icons/assa.png" width="30" height="30"> Assassination </div>
+			<div class="spec rogue" draggable="true" data-class="rogue" data-spec="combat"> <img src="icons/combat.png" width="30" height="30"> Combat </div>
+			<div class="spec rogue" draggable="true" data-class="rogue" data-spec="subtlety"> <img src="icons/subtlety.png" width="30" height="30"> Subtlety </div>
+			<div class="spec hunter" draggable="true" data-class="hunter" data-spec="beastmastery"> <img src="icons/beastmastery.png" width="30" height="30"> Beast Mastery </div>
+			<div class="spec hunter" draggable="true" data-class="hunter" data-spec="marksman"> <img src="icons/marksman.png" width="30" height="30"> Marksmanship </div>
+			<div class="spec hunter" draggable="true" data-class="hunter" data-spec="survival"> <img src="icons/survival.png" width="30" height="30"> Survival </div>
+			<div class="spec paladin" draggable="true" data-class="paladin" data-spec="retribution"> <img src="icons/retribution.png" width="30" height="30"> Retribution </div>
+			<div class="spec shaman" draggable="true" data-class="shaman" data-spec="enhancement"> <img src="icons/enhancement.png" width="30" height="30"> Enhancement </div>			
+			</div>
+			
+			<div class="category right">
+			<div class="category-header"></div>	
+			<div class="spec dd" draggable="true" data-class="dd" data-spec="dd"> <img src="icons/icon_dd.png" width="30" height="30"> DD </div>			
+			<div class="spec mage" draggable="true" data-class="mage" data-spec="arcane"> <img src="icons/arcane.png" width="30" height="30"> Arcane </div>
+			<div class="spec mage" draggable="true" data-class="mage" data-spec="fire"> <img src="icons/fire.png" width="30" height="30"> Fire </div>
+			<div class="spec mage" draggable="true" data-class="mage" data-spec="frost"> <img src="icons/frost.png" width="30" height="30"> Frost </div>
+			<div class="spec priest" draggable="true" data-class="priest" data-spec="shadow"> <img src="icons/shadow.png" width="30" height="30"> Shadow </div>
+			<div class="spec warlock" draggable="true" data-class="warlock" data-spec="affliction"> <img src="icons/affliction.png" width="30" height="30"> Affliction </div>
+			<div class="spec warlock" draggable="true" data-class="warlock" data-spec="demonology"> <img src="icons/demonology.png" width="30" height="30"> Demonology </div>
+			<div class="spec warlock" draggable="true" data-class="warlock" data-spec="destruction"> <img src="icons/destruction.png" width="30" height="30"> Destruction </div>
+			<div class="spec druid" draggable="true" data-class="druid" data-spec="balance"> <img src="icons/balance.png" width="30" height="30"> Balance </div>
+			<div class="spec shaman" draggable="true" data-class="shaman" data-spec="elemental"> <img src="icons/elemental.png" width="30" height="30"> Elemental </div>				
+			</div>
+			
+			<div class="category left">
+			<div class="category-header">Class</div>			
+			<div class="spec warrior" draggable="true" data-class="warrior" data-spec="warrior"> <img src="icons/warrior.png" width="30" height="30"> Warrior </div>
+			<div class="spec warlock" draggable="true" data-class="warlock" data-spec="warlock"> <img src="icons/warlock.png" width="30" height="30"> Warlock </div>
+			<div class="spec priest" draggable="true" data-class="priest" data-spec="priest"> <img src="icons/priest.png" width="30" height="30"> Priest </div>
+			<div class="spec mage" draggable="true" data-class="mage" data-spec="mage"> <img src="icons/mage.png" width="30" height="30"> Mage </div>
+			<div class="spec rogue" draggable="true" data-class="rogue" data-spec="rogue"> <img src="icons/rogue.png" width="30" height="30"> Rogue </div>
+			</div>
+			
+			<div class="category right">
+			<div class="category-header"></div>			
+			<div class="spec hunter" draggable="true" data-class="hunter" data-spec="hunter"> <img src="icons/hunter.png" width="30" height="30"> Hunter </div>
+			<div class="spec druid" draggable="true" data-class="druid" data-spec="druid"> <img src="icons/druid.png" width="30" height="30"> Druid </div>
+			<div class="spec paladin" draggable="true" data-class="paladin" data-spec="paladin"> <img src="icons/paladin.png" width="30" height="30"> Paladin </div>
+			<div class="spec shaman" draggable="true" data-class="shaman" data-spec="shaman"> <img src="icons/shaman.png" width="30" height="30"> Shaman </div>		
+			</div>
+			  
+        </div>
+			</div>
+				
+
+        <!-- Die 4 Raid Gruppen -->
+        <div class="raid-container">
+            <div class="grid-groups">
+                
+                <!-- Gruppe 1 -->
+               <div class="box" id="gruppe1" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+				<h3>Gruppe 1 </h3>
+					<div class="slot" data-index="0">— leer —</div>
+					<div class="slot" data-index="1">— leer —</div>
+					<div class="slot" data-index="2">— leer —</div>
+					<div class="slot" data-index="3">— leer —</div>
+					<div class="slot" data-index="4">— leer —</div>
+				</div>   
+
+                <!-- Gruppe 2 -->
+                <div class="box" id="gruppe2" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+				<h3>Gruppe 2 </h3>
+					<div class="slot" data-index="0">— leer —</div>
+					<div class="slot" data-index="1">— leer —</div>
+					<div class="slot" data-index="2">— leer —</div>
+					<div class="slot" data-index="3">— leer —</div>
+					<div class="slot" data-index="4">— leer —</div>
+				</div>   
+
+                <!-- Gruppe 3 -->
+                <div class="box" id="gruppe3" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+				<h3>Gruppe 3 </h3>
+					<div class="slot" data-index="0">— leer —</div>
+					<div class="slot" data-index="1">— leer —</div>
+					<div class="slot" data-index="2">— leer —</div>
+					<div class="slot" data-index="3">— leer —</div>
+					<div class="slot" data-index="4">— leer —</div>
+				</div>   
+
+                <!-- Gruppe 4 -->
+                <div class="box" id="gruppe4" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+				<h3>Gruppe 4 </h3>
+					<div class="slot" data-index="0">— leer —</div>
+					<div class="slot" data-index="1">— leer —</div>
+					<div class="slot" data-index="2">— leer —</div>
+					<div class="slot" data-index="3">— leer —</div>
+					<div class="slot" data-index="4">— leer —</div>
+				</div>   
+                
+            </div>
+        </div>
+		
+				<div class="buff-panel">
+					<h3>Raid Buffs</h3>
+
+					<div class="buff" data-buff="battle_shout">Melee AP<span class="tooltip">Warrior</span></div>
+					<div class="buff" data-buff="trueshot_aura">Ranged AP<span class="tooltip">Hunter (Marksmanship)</span></div>
+					<div class="buff" data-buff="sunder_armor">Major Armor Reduce<span class="tooltip">Warrior, Rogue</span></div>
+					<div class="buff" data-buff="minor_armor">Minor Armor Reduce<span class="tooltip">Warlock, Druid</span></div>
+					<div class="buff" data-buff="leader_of_the_pack">5% Melee Crit<span class="tooltip">Druid (Feral)</span></div>
+					
+					<div class="buff" data-buff="moonkin_aura">5% Spell Crit<span class="tooltip">Druid (Balance)</span></div>
+					<div class="buff" data-buff="curse_of_elements">10% Magic Damage<span class="tooltip">Warlock</span></div>
+					<div class="buff-separator"></div>
+					<div class="buff" data-buff="strength_of_earth">Strength of Earth<span class="tooltip">Shaman</span></div>
+					<div class="buff" data-buff="grace_of_air">Grace of Air<span class="tooltip">Shaman</span></div>
+					<div class="buff" data-buff="windfury">Windfury Totem<span class="tooltip">Shaman</span></div>
+				
+					<div class="buff" data-buff="blessing_of_kings">Blessing of Kings<span class="tooltip">Paladin</span></div>
+					<div class="buff" data-buff="blessing_of_might">Blessing of Might<span class="tooltip">Paladin</span></div>
+					<div class="buff" data-buff="blessing_of_wisdom">Blessing of Wisdom<span class="tooltip">Paladin</span></div>
+					
+					<div class="buff-separator"></div>
+					<div class="buff" data-buff="gift_of_the_wild">Stats, Armor<span class="tooltip">Druid</span></div>
+					<div class="buff" data-buff="intellect">Intellect<span class="tooltip">Mage</span></div>
+					<div class="buff" data-buff="fortitude">Stamina<span class="tooltip">Priest</span></div>
+					<div class="buff" data-buff="spirit">Spirit<span class="tooltip">Priest</span></div>
+					<div class="buff" data-buff="shadow_protection">Shadow Protection<span class="tooltip">Priest</span></div>
+					<div class="buff" data-buff="blood_pact">Blood Pact (Imp)<span class="tooltip">Warlock (Demo)</span></div>
+				
+			
+
+
+				</div>   
+
+    </div>
+
+  <script>
+  
+// Einmalig – unterdrückt das Browser-Menü auf der ganzen Seite
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});   
+
+let draggedText = '';
+let draggedClass = '';
+let draggedIcon = '';
+let draggedSpec = '';
+let isDragging = false;
+let draggedFromSlot = null;  // ← NEU: merkt sich, von welchem Slot gezogen wird
+
+// Hilfsfunktion: Slot füllen
+function fillSlot(slot, cls, specName, text, iconSrc) {
+    slot.className = 'spec ' + cls + ' filled';
+    slot.innerHTML = '';
+    slot.setAttribute('data-spec', specName);
+	slot.setAttribute('data-class', cls); 
+    slot.setAttribute('draggable', 'true');
+
+    if (iconSrc) {
+        const img = document.createElement('img');
+        img.src = iconSrc;
+        img.width = 18;
+        img.height = 18;
+        slot.appendChild(img);
+    }
+
+    const span = document.createElement('span');
+    span.innerText = text;
+    slot.appendChild(span);
+
+    // Dragstart-Listener für den Slot
+    slot.addEventListener('dragstart', (e) => {
+        e.stopPropagation();
+        isDragging = true;
+        draggedFromSlot = slot;
+        draggedText = span.innerText;
+        draggedClass = cls;
+        draggedSpec = specName;
+        draggedIcon = iconSrc;
+    });
+    slot.addEventListener('dragend', () => {
+        isDragging = false;
+        draggedFromSlot = null;
+    });
+}
+
+// --- Sidebar: Drag & Drop + Doppelklick ---
+document.querySelectorAll('.sidebar .spec').forEach(spec => {
+    spec.addEventListener('dragstart', (e) => {
+        isDragging = true;
+        draggedFromSlot = null;
+        draggedText = spec.innerText;
+        draggedClass = spec.getAttribute('data-class');
+        draggedSpec = spec.getAttribute('data-spec');
+        const img = spec.querySelector('img');
+        draggedIcon = img ? img.src : '';
+    });
+    spec.addEventListener('dragend', () => {
+        isDragging = false;
+        draggedFromSlot = null;
+    });
+
+    spec.addEventListener('contextmenu', () => {
+        if (isDragging) return;
+        const text = spec.innerText;
+        const cls = spec.getAttribute('data-class');
+        const specName = spec.getAttribute('data-spec');
+        const img = spec.querySelector('img');
+        const iconSrc = img ? img.src : '';
+
+        const boxes = document.querySelectorAll('.box');
+        for (const box of boxes) {
+            const emptySlot = box.querySelector('.slot:not(.filled)');
+            if (emptySlot) {
+                fillSlot(emptySlot, cls, specName, text, iconSrc);
+                break;
+            }
+        }
+        checkBuffs();
+    });
+});
+
+// --- Drop in eine Gruppe ---
+function handleDrop(e) {
+    e.preventDefault();
+    const targetBox = e.target.closest('.box');
+    if (!targetBox) return;
+
+    // Ziel-Slot bestimmen
+    let targetSlot = e.target.closest('.spec.filled') || e.target.closest('.slot');
+    if (!targetSlot) {
+        targetSlot = targetBox.querySelector('.slot:not(.filled)');
+    }
+    if (!targetSlot) return;
+
+    // Wenn von einem bestehenden Slot gezogen:
+    if (draggedFromSlot) {
+        if (draggedFromSlot === targetSlot) return; // auf sich selbst → ignorieren
+
+        if (targetSlot.classList.contains('filled')) {
+            // === TAUSCH === (beide gefüllt)
+            const temp = {
+                cls: targetSlot.getAttribute('data-class') || targetSlot.className.replace('spec filled ', '').replace(' filled', ''),
+                spec: targetSlot.getAttribute('data-spec'),
+                text: targetSlot.innerText.trim(),
+                icon: (targetSlot.querySelector('img') || {}).src || ''
+            };
+            const srcCls = draggedFromSlot.getAttribute('data-class') || '';
+
+            fillSlot(targetSlot, srcCls, draggedSpec, draggedText, draggedIcon);
+            fillSlot(draggedFromSlot, temp.cls, temp.spec, temp.text, temp.icon);
+        } else {
+            // === VERSCHIEBEN === (Ziel ist leer)
+            fillSlot(targetSlot, draggedClass, draggedSpec, draggedText, draggedIcon);
+            draggedFromSlot.className = 'slot';
+            draggedFromSlot.innerHTML = '— leer —';
+            draggedFromSlot.removeAttribute('data-spec');
+            draggedFromSlot.removeAttribute('draggable');
+        }
+    } else {
+        // === NEU EINSETZEN === (aus der Sidebar gezogen)
+        if (targetSlot.classList.contains('filled')) return; // nur in leere Slots
+        fillSlot(targetSlot, draggedClass, draggedSpec, draggedText, draggedIcon);
+    }
+
+    checkBuffs();
+}   
+
+// --- Doppelklick in einer Box → Spec entfernen ---
+document.querySelectorAll('.box').forEach(box => {
+    box.addEventListener('contextmenu', (e) => {
+        const slot = e.target.closest('.spec.filled');
+        if (!slot) return;
+        slot.className = 'slot';
+        slot.innerHTML = '— leer —';
+        slot.removeAttribute('data-spec');
+        slot.removeAttribute('draggable');
+        checkBuffs();
+    });
+});
+
+// --- Buffs ---
+const buffRules = [
+    { buff: 'battle_shout',        spec: ['warrior', 'prot_warrior', 'fury', 'arms'] },
+    { buff: 'trueshot_aura',       spec: ['marksman'] },
+    { buff: 'sunder_armor',        spec: ['warrior', 'prot_warrior', 'fury', 'arms', 'rogue', 'assa', 'combat', 'subtlety'] },
+    { buff: 'minor_armor',        spec: ['warlock', 'affliction', 'demonology', 'destruction', 'druid', 'guardian', 'feral', 'resto_druid', 'balance'] },
+    { buff: 'leader_of_the_pack',  spec: ['feral', 'guardian'] },
+    { buff: 'moonkin_aura',        spec: ['balance'] },
+    { buff: 'curse_of_elements',   spec: ['warlock', 'affliction', 'demonology', 'destruction'] },
+    { buff: 'strength_of_earth',   spec: ['shaman', 'resto_shaman', 'elemental', 'enhancement'] },
+    { buff: 'grace_of_air',        spec: ['shaman', 'resto_shaman', 'elemental', 'enhancement'] },
+    { buff: 'windfury',            spec: ['shaman', 'resto_shaman', 'elemental', 'enhancement'] },
+    { buff: 'blessing_of_kings',   spec: ['paladin', 'prot_pala', 'holy_pala', 'retribution'] },
+    { buff: 'blessing_of_might',   spec: ['paladin', 'prot_pala', 'holy_pala', 'retribution'] },
+    { buff: 'blessing_of_wisdom',  spec: ['paladin', 'prot_pala', 'holy_pala', 'retribution'] },
+    { buff: 'gift_of_the_wild',    spec: ['druid', 'guardian', 'feral', 'resto_druid', 'balance'] },
+    { buff: 'intellect',           spec: ['mage', 'arcane', 'fire', 'frost'] },
+    { buff: 'fortitude',           spec: ['priest', 'disc_priest', 'holy_priest', 'shadow'] },
+    { buff: 'spirit',              spec: ['priest', 'disc_priest', 'holy_priest', 'shadow'] },
+    { buff: 'shadow_protection',   spec: ['priest', 'disc_priest', 'holy_priest', 'shadow'] },
+    { buff: 'blood_pact',          spec: ['demonology'] },
+];   
+
+function checkBuffs() {
+    const boxes = document.querySelectorAll('.box');
+
+    buffRules.forEach(rule => {
+        let found = false;
+        boxes.forEach(box => {
+            const specs = box.querySelectorAll('[data-spec]');
+            specs.forEach(el => {
+                if (rule.spec.includes(el.getAttribute('data-spec'))) {
+                    found = true;
+                }
+            });
+        });
+
+        const el = document.querySelector('[data-buff="' + rule.buff + '"]');
+        if (el) {
+            if (found) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        }
+    });
+}   
+
+</script>   
