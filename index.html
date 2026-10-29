@@ -396,6 +396,31 @@ let draggedSpec = '';
 let isDragging = false;
 let draggedFromSlot = null;  // ← NEU: merkt sich, von welchem Slot gezogen wird
 
+// mobile touch bedienung
+let longPressTimer = null;
+
+document.addEventListener('touchstart', function(e) {
+    longPressTimer = setTimeout(() => {
+        // Simuliert contextmenu
+        e.preventDefault();
+        const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+
+        // Logik wie bei deinem contextmenu-Handler:
+        const slot = target.closest('.spec.filled');
+        if (slot) {
+            slot.className = 'slot';
+            slot.innerHTML = '— leer —';
+            slot.removeAttribute('data-spec');
+            slot.removeAttribute('draggable');
+            checkBuffs();
+        }
+    }, 500);  // 500ms = Long-Press-Dauer
+}, { passive: false });
+
+// Timer abbrechen bei Touch-End oder Bewegung
+document.addEventListener('touchend', () => clearTimeout(longPressTimer));
+document.addEventListener('touchmove', () => clearTimeout(longPressTimer));   
+
 // Hilfsfunktion: Slot füllen
 function fillSlot(slot, cls, specName, text, iconSrc) {
     slot.className = 'spec ' + cls + ' filled';
