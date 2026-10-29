@@ -74,6 +74,18 @@
 
 
         /* Raid Gruppen Layout */
+				.reset-btn {
+			    background: #333;
+			    color: #e0e0e0;
+			    border: 1px solid #555;
+			    border-radius: 4px;
+			    padding: 8px 16px;
+			    cursor: pointer;
+			    font-size: 0.9rem;
+				}
+				.reset-btn:hover {
+			    background: #444;
+				}   
         .raid-container { display: flex; flex-direction: column; gap: 20px; }
         .grid-groups { 
 		display: grid; 
@@ -302,7 +314,8 @@
 
         <!-- Die 4 Raid Gruppen -->
         <div class="raid-container">
-            <div class="grid-groups">
+			<button id="resetBtn" class="reset-btn">Reset</button>
+            	<div class="grid-groups">
                 
                 <!-- Gruppe 1 -->
                <div class="box" id="gruppe1" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
@@ -389,6 +402,17 @@ document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
 });   
 
+document.getElementById('resetBtn').addEventListener('click', () => {
+    document.querySelectorAll('.box .slot').forEach(slot => {
+        slot.className = 'slot';
+        slot.innerHTML = '— leer —';
+        slot.removeAttribute('data-spec');
+        slot.removeAttribute('data-class');
+        slot.removeAttribute('draggable');
+    });
+    checkBuffs();
+});   
+	  
 let draggedText = '';
 let draggedClass = '';
 let draggedIcon = '';
