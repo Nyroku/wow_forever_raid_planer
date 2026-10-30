@@ -329,7 +329,7 @@
 				
 
         <!-- Die 4 Raid Gruppen -->
-        <div class="raid-container">
+    <div class="raid-container">
 			<button id="resetBtn" class="reset-btn">Reset</button>
             	<div class="grid-groups">
                 
@@ -371,10 +371,11 @@
 					<div class="slot" data-index="2">— leer —</div>
 					<div class="slot" data-index="3">— leer —</div>
 					<div class="slot" data-index="4">— leer —</div>
-				</div>   
-                
+				</div>                   
             </div>
-        </div>
+			
+		 <button id="shareBtn" class="reset-btn">🔗 Share</button>
+    </div>
 		
 				<div class="buff-panel">
 					<h3>Raid Buffs</h3>
@@ -692,5 +693,58 @@ function checkBuffs() {
 });   
 }     
 
+// --- Share Link ---
+const GROUPS = ['gruppe1', 'gruppe2', 'gruppe3', 'gruppe4'];
+
+function encodeState() {
+    const parts = GROUPS.map(groupId => {
+        const box = document.getElementById(groupId);
+        const slots = box.querySelectorAll('[data-index]');
+        return Array.from(slots).map(slot =>
+            slot.classList.contains('filled') ? slot.getAttribute('data-spec') : '-'
+        ).join(',');
+    });
+    return '#' + parts.join('|');
+}
+
+function decodeState() {
+    const hash = window.location.hash;
+    if (!hash || hash === '#') return;
+
+    const groups = hash.slice(1).split('|');
+    GROUPS.forEach((groupId, gi) => {
+        if (!groups[gi]) return;
+        const specs = groups[gi].split(',');
+        const box = document.getElementById(groupId);
+        const slots = box.querySelectorAll('[data-index]');
+
+        specs.forEach((specName, si) => {
+            if (specName === '-' || !specName) return;
+            // Find the matching sidebar spec to get class, text, icon
+            const sidebarSpec = document.querySelector(`.sidebar .spec[data-spec="${specName}"]`);
+            if (!sidebarSpec) return;
+            const cls = sidebarSpec.getAttribute('data-class');
+            const text = sidebarSpec.innerText;
+            const img = sidebarSpec.querySelector('img');
+            const iconSrc = img ? img.src : '';
+            fillSlot(slots[si], cls, specName, text, iconSrc);
+        });
+    });
+    checkBuffs();
+}
+
+document.getElementById('shareBtn').addEventListener('click', () => {
+    const url = window.location.origin + window.location.pathname + encodeState();
+    history.replaceState(null, '', url);
+    navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('shareBtn');
+        const orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = orig, 1500);
+    });
+});
+
+// Restore on page load
+decodeState();   
 
 </script>   
