@@ -706,7 +706,7 @@ function decodeState() {
     const hash = window.location.hash;
     if (!hash || hash === '#') return;
 
-    const groups = hash.slice(1).split('|');
+  	const groups = decodeURIComponent(hash.slice(1)).split('|');   
     GROUPS.forEach((groupId, gi) => {
         if (!groups[gi]) return;
         const specs = groups[gi].split(',');
