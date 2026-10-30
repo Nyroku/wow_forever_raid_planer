@@ -561,7 +561,6 @@ function handleDrop(e) {
         }
     } else {
         // === NEU EINSETZEN === (aus der Sidebar gezogen)
-        if (targetSlot.classList.contains('filled')) return; // nur in leere Slots
         fillSlot(targetSlot, draggedClass, draggedSpec, draggedText, draggedIcon);
     }
 
