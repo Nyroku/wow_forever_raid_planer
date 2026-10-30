@@ -163,12 +163,6 @@
             background: transparent;
 			padding: 0;
         }
-		.slot.filled .spec {
-   		margin: 0;
-		height: 100%;
-    	width: 100%;
-    	padding: 0 8px;
-		}
 		
 		.box .spec {
 		width: 100%;
@@ -460,19 +454,19 @@ function fillSlot(slot, cls, specName, text, iconSrc) {
     slot.appendChild(span);
 
     // Dragstart-Listener für den Slot
-    slot.addEventListener('dragstart', (e) => {
-        e.stopPropagation();
-        isDragging = true;
-        draggedFromSlot = slot;
-        draggedText = span.innerText;
-        draggedClass = cls;
-        draggedSpec = specName;
-        draggedIcon = iconSrc;
-    });
-    slot.addEventListener('dragend', () => {
-        isDragging = false;
-        draggedFromSlot = null;
-    });
+   slot.ondragstart = (e) => {
+	    e.stopPropagation();
+	    isDragging = true;
+	    draggedFromSlot = slot;
+	    draggedText = span.innerText;
+	    draggedClass = cls;
+	    draggedSpec = specName;
+	    draggedIcon = iconSrc;
+		};
+	slot.ondragend = () => {
+	    isDragging = false;
+	    draggedFromSlot = null;
+		};
 }
 
 // --- Sidebar: Drag & Drop + Doppelklick ---
@@ -549,7 +543,7 @@ function handleDrop(e) {
         if (targetSlot.classList.contains('filled')) {
             // === TAUSCH === (beide gefüllt)
             const temp = {
-                cls: targetSlot.getAttribute('data-class') || targetSlot.className.replace('spec filled ', '').replace(' filled', ''),
+				cls: targetSlot.getAttribute('data-class') || targetSlot.className.split(' ')[1] || '',
                 spec: targetSlot.getAttribute('data-spec'),
                 text: targetSlot.innerText.trim(),
                 icon: (targetSlot.querySelector('img') || {}).src || ''
@@ -721,6 +715,7 @@ function decodeState() {
 
         specs.forEach((specName, si) => {
             if (specName === '-' || !specName) return;
+			if (!slots[si]) return;  // ← prevents crash if slot doesn't exist
             // Find the matching sidebar spec to get class, text, icon
             const sidebarSpec = document.querySelector(`.sidebar .spec[data-spec="${specName}"]`);
             if (!sidebarSpec) return;
