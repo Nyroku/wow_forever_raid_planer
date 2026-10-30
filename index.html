@@ -698,14 +698,14 @@ function encodeState() {
             slot.classList.contains('filled') ? slot.getAttribute('data-spec') : '-'
         ).join(',');
     });
-    return '#' + parts.join('|');
+   	return '#' + parts.join('~');   
 }
 
 function decodeState() {
     const hash = window.location.hash;
     if (!hash || hash === '#') return;
 
-  	const groups = decodeURIComponent(hash.slice(1)).split('|');   
+  	const groups = hash.slice(1).split('~');    
     GROUPS.forEach((groupId, gi) => {
         if (!groups[gi]) return;
         const specs = groups[gi].split(',');
