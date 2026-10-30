@@ -746,6 +746,6 @@ document.getElementById('shareBtn').addEventListener('click', () => {
 });
 
 // Restore on page load
-decodeState();   
+window.addEventListener('load', decodeState);  
 
 </script>   
