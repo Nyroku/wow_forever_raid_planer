@@ -214,6 +214,11 @@
 			color: #fff;
 			border-left: 4px solid #4caf50;
 		}   
+		.buff.warning {
+		background: #3a3a1a;
+		color: #fff;
+		border-left: 4px solid #f0c040;
+		}  
 
 
 		.buff .tooltip {
@@ -614,28 +619,78 @@ const buffRules = [
 ];   
 
 function checkBuffs() {
-    const boxes = document.querySelectorAll('.box');
+   const boxes = document.querySelectorAll('.box');
 
-    buffRules.forEach(rule => {
-        let found = false;
-        boxes.forEach(box => {
-            const specs = box.querySelectorAll('[data-spec]');
-            specs.forEach(el => {
-                if (rule.spec.includes(el.getAttribute('data-spec'))) {
-                    found = true;
-                }
-            });
-        });
+	// Count shaman specs across all groups
+	let shamanCount = 0;
+	let paladinCount = 0;
+	boxes.forEach(box => {
+		const specs = box.querySelectorAll('[data-spec]');
+		specs.forEach(el => {
+			const s = el.getAttribute('data-spec');
+			if (['shaman', 'resto_shaman', 'elemental', 'enhancement'].includes(s)) {
+				shamanCount++;
+			}
+			if (['paladin', 'prot_pala', 'holy_pala', 'retribution'].includes(s)) {
+				paladinCount++;
+			}
+		});
+	});
 
-        const el = document.querySelector('[data-buff="' + rule.buff + '"]');
-        if (el) {
-            if (found) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
-            }
-        }
-    });
-}   
+	buffRules.forEach(rule => {
+		let found = false;
+		boxes.forEach(box => {
+			const specs = box.querySelectorAll('[data-spec]');
+			specs.forEach(el => {
+				if (rule.spec.includes(el.getAttribute('data-spec'))) {
+					found = true;
+				}
+			});
+		});
+
+		const el = document.querySelector('[data-buff="' + rule.buff + '"]');
+		if (!el) return;
+
+				// Windfury & Grace of Air: 1 = yellow, 2+ = green
+				if (rule.buff === 'windfury' || rule.buff === 'grace_of_air') {
+					el.classList.remove('active', 'warning');
+					const tooltip = el.querySelector('.tooltip');
+					if (shamanCount >= 2) {
+						el.classList.add('active');
+						if (tooltip) tooltip.textContent = 'Shaman';
+					} else if (shamanCount === 1) {
+						el.classList.add('warning');
+						if (tooltip) tooltip.textContent = '1 Shaman = 1 Wind Totem';
+					} else {
+						if (tooltip) tooltip.textContent = 'Shaman';
+					}
+					return;
+				}
+
+				// Paladin Blessings: 1-2 = yellow, 3+ = green
+				if (rule.buff === 'blessing_of_kings' || rule.buff === 'blessing_of_might' || rule.buff === 'blessing_of_wisdom') {
+					el.classList.remove('active', 'warning');
+					const tooltip = el.querySelector('.tooltip');
+					if (paladinCount >= 3) {
+						el.classList.add('active');
+						if (tooltip) tooltip.textContent = 'Paladin';
+					} else if (paladinCount >= 1) {
+						el.classList.add('warning');
+						if (tooltip) tooltip.textContent = '1 Paladin = 1 Blessing';
+					} else {
+						if (tooltip) tooltip.textContent = 'Paladin';
+					}
+					return;
+				}   
+
+    // Default: 1+ = green
+    if (found) {
+        el.classList.add('active');
+    } else {
+        el.classList.remove('active');
+    }
+});   
+}     
+
 
 </script>   
