@@ -377,9 +377,9 @@
 					<div class="buff" data-buff="trueshot_aura">Ranged AP<span class="tooltip">Hunter (Marksmanship)</span></div>
 					<div class="buff" data-buff="sunder_armor">Major Armor Reduce<span class="tooltip">Warrior, Rogue</span></div>
 					<div class="buff" data-buff="minor_armor">Minor Armor Reduce<span class="tooltip">Warlock, Druid</span></div>
-					<div class="buff" data-buff="leader_of_the_pack">5% Melee Crit<span class="tooltip">Druid (Feral)</span></div>
+					<div class="buff" data-buff="leader_of_the_pack">3% Crit<span class="tooltip">Druid (Feral or Balance)</span></div>
 					
-					<div class="buff" data-buff="moonkin_aura">5% Spell Crit<span class="tooltip">Druid (Balance)</span></div>
+				<!--	<div class="buff" data-buff="moonkin_aura">5% Spell Crit<span class="tooltip">Druid (Balance)</span></div>	-->
 					<div class="buff" data-buff="curse_of_elements">10% Magic Damage<span class="tooltip">Warlock</span></div>
 					<div class="buff-separator"></div>
 					<div class="buff" data-buff="strength_of_earth">Strength of Earth<span class="tooltip">Shaman</span></div>
@@ -397,6 +397,7 @@
 					<div class="buff" data-buff="spirit">Spirit<span class="tooltip">Priest</span></div>
 					<div class="buff" data-buff="shadow_protection">Shadow Protection<span class="tooltip">Priest</span></div>
 					<div class="buff" data-buff="blood_pact">Blood Pact (Imp)<span class="tooltip">Warlock (Demo)</span></div>
+					<div class="buff" data-buff="enrage_tranq">Enrage<span class="tooltip">Hunter</span></div>
 				
 			
 
@@ -593,10 +594,11 @@ document.querySelectorAll('.box').forEach(box => {
 const buffRules = [
     { buff: 'battle_shout',        spec: ['warrior', 'prot_warrior', 'fury', 'arms'] },
     { buff: 'trueshot_aura',       spec: ['marksman'] },
+	{ buff: 'enrage_tranq',       spec: ['hunter', 'survival', 'beastmastery', 'marksman'] },
     { buff: 'sunder_armor',        spec: ['warrior', 'prot_warrior', 'fury', 'arms', 'rogue', 'assa', 'combat', 'subtlety'] },
     { buff: 'minor_armor',        spec: ['warlock', 'affliction', 'demonology', 'destruction', 'druid', 'guardian', 'feral', 'resto_druid', 'balance'] },
-    { buff: 'leader_of_the_pack',  spec: ['feral', 'guardian'] },
-    { buff: 'moonkin_aura',        spec: ['balance'] },
+    { buff: 'leader_of_the_pack',  spec: ['feral', 'guardian', 'balance'] },
+//    { buff: 'moonkin_aura',        spec: ['balance'] },
     { buff: 'curse_of_elements',   spec: ['warlock', 'affliction', 'demonology', 'destruction'] },
     { buff: 'strength_of_earth',   spec: ['shaman', 'resto_shaman', 'elemental', 'enhancement'] },
     { buff: 'grace_of_air',        spec: ['shaman', 'resto_shaman', 'elemental', 'enhancement'] },
